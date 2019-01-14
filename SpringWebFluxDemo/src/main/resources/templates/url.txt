@@ -1,0 +1,6 @@
+https://github.com/ualter/spring-reactive-webflux/tree/master/spring-webflux-reactive/src/main/java/com/spring/webflux/reactive
+
+https://medium.com/@nithinmallya4/processing-streaming-data-with-spring-webflux-ed0fc68a14de
+
+https://medium.com/@cheron.antoine/reactor-java-2-how-to-manipulate-the-data-inside-mono-and-flux-b36ae383b499
+
