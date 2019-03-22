@@ -1,4 +1,4 @@
-package io.highway.api;
+package io.highway.reactive;
 
 import java.time.LocalDateTime;
 

@@ -1,9 +1,9 @@
-package io.highway.api;
+package io.highway.reactive;
 
 import java.text.DecimalFormat;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.highway.api.Vehicle;
+import io.highway.reactive.Vehicle;
 
 public class HighwayTrafficSimulator {
 

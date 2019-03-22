@@ -1,4 +1,4 @@
-package io.analyzer.api;
+package io.analyzer.reactive;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,11 +18,12 @@ public class RiskController {
 	@GetMapping("/{number}")
 	public Mono<String> getRisk(@PathVariable("number") String number) throws InterruptedException {
 		
-		System.out.println("RISK-Thread:" +Thread.currentThread().getName());
-		System.out.println("Analyzing:" +number);
-		Thread.sleep(3000);
+		System.out.println("NUMBER:"+number+", REACTIVE-RISK-Thread:" +Thread.currentThread().getName());
+		
+		Thread.sleep(4000);
 		
 		String risk = RISKS[ThreadLocalRandom.current().nextInt(0, 4)];
+		System.out.println("RISK Identified as:"+risk+", for:"+number);
 		Mono<String> mono = Mono.just(risk);
 		
 		return mono;

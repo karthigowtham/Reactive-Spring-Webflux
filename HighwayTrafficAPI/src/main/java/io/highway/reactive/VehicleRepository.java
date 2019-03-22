@@ -1,4 +1,4 @@
-package io.highway.api;
+package io.highway.reactive;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.mongodb.repository.Tailable;
