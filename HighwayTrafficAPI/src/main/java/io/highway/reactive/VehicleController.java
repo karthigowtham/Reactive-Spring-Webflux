@@ -19,79 +19,85 @@ import reactor.core.scheduler.Schedulers;
 
 @RestController
 public class VehicleController {
-			
+
+	final ExecutorService executor = Executors.newFixedThreadPool(5);
+
 	@Autowired
 	private VehicleRepository repository;
-	
-	@GetMapping(value="/findByNumber/{number}", produces = {MediaType.APPLICATION_JSON_VALUE})
+
+	@GetMapping(value = "/findByNumber/{number}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public Mono<Vehicle> findVehicle(@PathVariable("number") String carNumber) {		
+	public Mono<Vehicle> findVehicle(@PathVariable("number") String carNumber) {
 		return repository.findById(carNumber);
-		
+
 	}
-	
-	@GetMapping(value="/findByType/{type}", produces = {MediaType.APPLICATION_JSON_VALUE})
+
+	@GetMapping(value = "/findByType/{type}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public Flux<Vehicle> findVehicles(@PathVariable("type") String type) {		
+	public Flux<Vehicle> findVehicles(@PathVariable("type") String type) {
 		return repository.findAllBytype(type);
-		
+
 	}
-	
-	@GetMapping(value="/live", produces = {MediaType.TEXT_EVENT_STREAM_VALUE})
+
+	@GetMapping(value = "/live", produces = { MediaType.TEXT_EVENT_STREAM_VALUE })
 	@ResponseStatus(HttpStatus.OK)
 	public Flux<Vehicle> getLiveVehicles() {
 		return repository.findAllWithTailableCursorBy();
-		
+
 	}
-	
-	@GetMapping(value="/liveBySpeed", produces = {MediaType.TEXT_EVENT_STREAM_VALUE})
+
+	@GetMapping(value = "/liveBySpeed", produces = { MediaType.TEXT_EVENT_STREAM_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public Flux<VehicleDetails> getVehiclesDetails(@RequestParam("speed") Integer speed) {
-		//ExecutorService executor = Executors.newFixedThreadPool(2);
-		
-		System.out.println("VEHICLE-Thread:" +Thread.currentThread().getName());
-		
+	public Flux<Vehicle> getVehiclesDetails(@RequestParam("speed") Integer speed) throws InterruptedException {
+
+		System.out.println("VEHICLE-MAIN:" + Thread.currentThread().getName());
+
 		Flux<Vehicle> feed = repository.findAllWithTailableCursorBy();
-		
-		Flux<VehicleDetails> details = feed.filter(vehicle -> vehicle.getSpeed() > speed)/*.subscribeOn(Schedulers.parallel())*/
-											.flatMap(vehicle -> {
-													System.out.println("NUMBER:"+vehicle.getCarNumber()+", VEHICLE-CALLER:" +Thread.currentThread().getName());
-												 return Flux.just( new VehicleDetails(vehicle, getRisk(vehicle.getCarNumber())));
-												});							
-																
-		return details;
-		
+
+		return feed.filter(vehicle -> vehicle.getSpeed() > speed).flatMap(vehicle -> {
+			storeRisk(vehicle.getCarNumber());
+			return Flux.just(vehicle);
+		});
+
 	}
-	
-	@GetMapping(value="/riskByNumber/{number}", produces = {MediaType.APPLICATION_JSON_VALUE})
+
+	@GetMapping(value = "/riskByNumber/{number}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.OK)
-	public String analyzeVehicle(@PathVariable("number") String carNumber) {		
-		
-		System.out.println("NUMBER:"+carNumber+", VEHICLE-Thread:" +Thread.currentThread().getName());
-		
-		//ExecutorService executor = Executors.newFixedThreadPool(2);
-			
-		/*repository.findById(carNumber).subscribeOn(Schedulers.fromExecutor(executor)).subscribe(vehicle-> {
-										System.out.println("DATA:"+vehicle);
-										System.out.println("VEHICLE-CALLER:" +Thread.currentThread().getName());
-										System.out.println("RISK:"+getRisk(carNumber));
-								});*/
-		
-		repository.findById(carNumber).subscribe(vehicle-> {
-										System.out.println("DATA:"+vehicle);
-										System.out.println("NUMBER:"+vehicle.getCarNumber()+", VEHICLE-CALLER:" +Thread.currentThread().getName());
-										System.out.println("RISK:"+getRisk(vehicle.getCarNumber()));
-								}, err -> System.out.println("ERROR:"+err), () -> System.out.println("COMPLETED"));
-				
-		
-				
-		return "SUCCESS";
-		
+	public Mono<Object> analyzeVehicle(@PathVariable("number") String carNumber) {
+
+		System.out.println("NUMBER:" + carNumber + ", VEHICLE-MAIN:" + Thread.currentThread().getName());
+
+		/*
+		 * getVehicleForTest.subscribe(vehicle -> {
+		 * getRisk(vehicle.getCarNumber()).subscribe(str -> System.out.println(str),
+		 * null, null); }, null, null);
+		 * 
+		 * return "SUCCESS";
+		 */
+
+		return getVehicleForTest(carNumber).subscribeOn(Schedulers.elastic())
+				.map(vehicle -> getRisk(vehicle.getCarNumber()));
+
 	}
-		
-	private Mono<String> getRisk(String number) {		
-		WebClient webClient = WebClient.create("http://localhost:8083/analyze");
-		return webClient.get().uri("/{number}", number).retrieve().bodyToMono(String.class);			
+
+	private Mono<String> getRisk(String number) {
+		System.out.println("NUMBER:" + number + ", VEHICLE-CALLER:" + Thread.currentThread().getName());
+
+		WebClient webClient = WebClient.create("http://localhost:8083/risk");
+		return webClient.get().uri("/{number}", number).retrieve().bodyToMono(String.class);
+	}
+
+	private void storeRisk(String number) {
+		System.out.println("NUMBER:" + number + ", VEHICLE-CALLER:" + Thread.currentThread().getName());
+
+		WebClient webClient = WebClient.create("http://localhost:8083/risk/store");
+		webClient.post().uri("/{number}", number).retrieve().bodyToMono(String.class).subscribe(null, null,
+				() -> System.out.println(number + "-stored successfully:" + Thread.currentThread().getName()));
+
+	}
+
+	private Mono<Vehicle> getVehicleForTest(String carNumber) {
+		return Mono.just(new Vehicle(carNumber, null, null, null));
 	}
 
 }

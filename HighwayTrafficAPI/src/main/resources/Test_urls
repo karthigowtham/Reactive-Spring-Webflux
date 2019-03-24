@@ -1,6 +1,6 @@
 Reactive REST URLS
 
-http://localhost:8083/analyze/{number} - Risk analyser
+http://localhost:8083/risk/{number} - Risk analyser
 
 http://localhost:8082/findByNumber/{number} - retrieve one vehicle
 

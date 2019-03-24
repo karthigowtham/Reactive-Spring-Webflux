@@ -3,13 +3,11 @@ package io.highway.reactive;
 import java.text.DecimalFormat;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.highway.reactive.Vehicle;
-
 public class HighwayTrafficSimulator {
 
 	private static DecimalFormat plateFormatNumber = new DecimalFormat("0000");
 	private static String[] STATE = { "TN", "AP", "KL", "KA", "AB", "NM", "AR" };
-	
+
 	private static String[] TYPES = { "CAR", "MINI-BUS", "CAMPER-VAN", "TRUCK", "CAR" };
 
 	private static String[] COLORS = { "Blue", "White", "Silver", "Black", "Metalic Green", "Orange", "Yellow" };
@@ -27,7 +25,7 @@ public class HighwayTrafficSimulator {
 		String color = COLORS[ThreadLocalRandom.current().nextInt(0, 6)];
 		String type = TYPES[ThreadLocalRandom.current().nextInt(0, 4)];
 
-		return new Vehicle(carPlateNumber, speed, color,type);
+		return new Vehicle(carPlateNumber, speed, color, type);
 
 	}
 
