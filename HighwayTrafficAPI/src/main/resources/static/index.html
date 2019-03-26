@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        /*body {*/
+            /*background-color: #e6e0d9;*/
+        /*}*/
+        h4 {
+            color: blue;
+        }
+        .center {
+            text-align: center;
+            border: 3px solid green;
+        }
+        #vehicle-table {
+            font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #vehicle-table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: cornflowerblue;
+            color: white;
+        }
+        #vehicle-table td, #vehicle-table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        #vehicle-table tr:nth-child(even){background-color: #f2f2f2;}
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+    <h4 style="text-align: center">Highway Traffic - Vehicle Monitoring System</h4>
+    <div class="table-responsive">
+        <table class="table" id="vehicle-table">
+            <thead>
+            <tr>
+                <th>CarNumber</th>
+                <th>Speed</th>
+                <th>Type</th>
+                <th>Color</th>
+                <th>Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    var evtSource = new EventSource("http://localhost:8082/live");
+    evtSource.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+        var table = document.getElementById("vehicle-table");
+        
+        var row = table.insertRow(1);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        var cell5 = row.insertCell(4);
+        
+        var number = data.carNumber;
+        var speed = data.speed;
+        var type = data.type;
+        var color = data.color;
+        var time = data.time;
+        
+        cell1.innerHTML = '<td>' + number + '</td>';
+        cell2.innerHTML = '<td>' + speed + '</td>';
+        cell3.innerHTML = '<td>' + type + '</td>';
+        cell4.innerHTML = '<td>' + color + '</td>';
+        cell5.innerHTML = '<td>' + time + '</td>';
+    }
+</script>
+
+</body>
+</html>
