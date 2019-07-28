@@ -12,11 +12,12 @@ http://localhost:8082/liveBySpeed?speed=120 - live stream, vehicle more than 120
 
 http://localhost:8082/riskByNumber/{number} - retrieve one vehicle with Risk
 
+http://localhost:8082/index.html - UI
 
 Normal Rest URL's
 
 http://localhost:8083/rest/{number} - retrieve risk
 
-http://localhost:8082/findByLegacy/{number} - retrieve one vehicle
+http://localhost:8082/findByLegacy/{number} - retrieve one vehicle with Risk
 
 
